@@ -6,6 +6,7 @@ import unittest
 from bankers_algorithm import (
     calculate_need,
     is_safe_state,
+    parse_integer_list,
     PRECONFIGURED_DATA,
 )
 from cpu_scheduling import (
@@ -85,6 +86,20 @@ class BankersAlgorithmTests(unittest.TestCase):
         is_safe, safe_seq, _ = is_safe_state(processes, allocation, max_matrix, available)
         self.assertFalse(is_safe)
         self.assertEqual(safe_seq, [])
+
+    def test_parse_integer_list(self):
+        # Space separated
+        self.assertEqual(parse_integer_list("3 3 3", 3), [3, 3, 3])
+        # Comma separated
+        self.assertEqual(parse_integer_list("3, 3, 3", 3), [3, 3, 3])
+        # Brackets
+        self.assertEqual(parse_integer_list("[3, 3, 3]", 3), [3, 3, 3])
+        # Single digit compact string (e.g. '333')
+        self.assertEqual(parse_integer_list("333", 3), [3, 3, 3])
+        # Invalid count
+        self.assertIsNone(parse_integer_list("33", 3))
+        # Negative numbers rejected
+        self.assertIsNone(parse_integer_list("3 -1 2", 3))
 
 
 class CPUSchedulingTests(unittest.TestCase):

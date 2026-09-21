@@ -7,7 +7,7 @@ It tests whether allocating resources to processes leaves the system in a safe s
 ensuring that deadlocks can never occur by finding a safe execution sequence.
 """
 
-from typing import List, Tuple, Dict, Any
+from typing import List, Tuple, Dict, Any, Optional
 
 # Pre-configured dataset from standard OS textbook / laboratory exam specification:
 # 5 processes (P0 to P4) and 3 resource types (A, B, C)
@@ -165,14 +165,42 @@ def run_preconfigured_bankers() -> None:
     print_bankers_output(processes, need, is_safe, safe_seq)
 
 
+import re
+
+
+def parse_integer_list(raw: str, expected_count: int) -> Optional[List[int]]:
+    """
+    Parses a user input line into a list of non-negative integers.
+    Supports:
+    - Space-separated: '3 3 3'
+    - Comma-separated or bracketed: '3, 3, 3', '[3, 3, 3]'
+    - Compact single digits: '333' (when length matches expected_count)
+    """
+    cleaned = raw.strip().replace("\ufeff", "")
+    # Extract all integer tokens
+    tokens = re.findall(r"-?\d+", cleaned)
+    if len(tokens) == expected_count:
+        vals = [int(t) for t in tokens]
+        if all(v >= 0 for v in vals):
+            return vals
+            
+    # Fallback for single-digit inputs without spaces (e.g. '333' for 3 resources)
+    if len(cleaned) == expected_count and cleaned.isdigit():
+        return [int(c) for c in cleaned]
+        
+    return None
+
+
 def run_custom_bankers() -> None:
     """
     Interactively prompts the user to input custom matrices for Banker's Algorithm.
     """
     print("\n--- Banker's Algorithm (Custom Input) ---")
     try:
-        num_p = int(input("Enter number of processes: ").strip())
-        num_r = int(input("Enter number of resource types: ").strip())
+        p_str = input("Enter number of processes: ").strip().replace("\ufeff", "")
+        r_str = input("Enter number of resource types: ").strip().replace("\ufeff", "")
+        num_p = int(p_str)
+        num_r = int(r_str)
         
         if num_p <= 0 or num_r <= 0:
             print("Number of processes and resources must be positive integers.")
@@ -180,24 +208,24 @@ def run_custom_bankers() -> None:
             
         processes = [f"P{i}" for i in range(num_p)]
         
-        print(f"\nEnter Allocation Matrix ({num_p} rows, each with {num_r} space-separated integers):")
+        print(f"\nEnter Allocation Matrix ({num_p} rows, {num_r} integers each, e.g. '0 1 0' or '010'):")
         allocation = []
         for i in range(num_p):
             while True:
-                line = input(f"Allocation for {processes[i]}: ").strip()
-                vals = list(map(int, line.split()))
-                if len(vals) == num_r and all(v >= 0 for v in vals):
+                line = input(f"Allocation for {processes[i]}: ")
+                vals = parse_integer_list(line, num_r)
+                if vals is not None:
                     allocation.append(vals)
                     break
-                print(f"Error: Please enter exactly {num_r} non-negative integers.")
+                print(f"Error: Please enter {num_r} non-negative integers (e.g., '0 1 0', '0, 1, 0', or '010').")
                 
-        print(f"\nEnter Maximum Matrix ({num_p} rows, each with {num_r} space-separated integers):")
+        print(f"\nEnter Maximum Matrix ({num_p} rows, {num_r} integers each, e.g. '7 5 3' or '753'):")
         max_matrix = []
         for i in range(num_p):
             while True:
-                line = input(f"Maximum for {processes[i]}: ").strip()
-                vals = list(map(int, line.split()))
-                if len(vals) == num_r and all(v >= 0 for v in vals):
+                line = input(f"Maximum for {processes[i]}: ")
+                vals = parse_integer_list(line, num_r)
+                if vals is not None:
                     # Validate Max >= Allocation
                     if all(vals[j] >= allocation[i][j] for j in range(num_r)):
                         max_matrix.append(vals)
@@ -205,16 +233,16 @@ def run_custom_bankers() -> None:
                     else:
                         print("Error: Max demand must be greater than or equal to current Allocation.")
                 else:
-                    print(f"Error: Please enter exactly {num_r} non-negative integers.")
+                    print(f"Error: Please enter {num_r} non-negative integers (e.g., '7 5 3', '7, 5, 3', or '753').")
                     
-        print(f"\nEnter Available Resources ({num_r} space-separated integers):")
+        print(f"\nEnter Available Resources ({num_r} integers, e.g. '3 3 2' or '332'):")
         while True:
-            line = input("Available: ").strip()
-            vals = list(map(int, line.split()))
-            if len(vals) == num_r and all(v >= 0 for v in vals):
+            line = input("Available: ")
+            vals = parse_integer_list(line, num_r)
+            if vals is not None:
                 available = vals
                 break
-            print(f"Error: Please enter exactly {num_r} non-negative integers.")
+            print(f"Error: Please enter {num_r} non-negative integers (e.g., '3 3 2', '3, 3, 2', or '332').")
             
         is_safe, safe_seq, need = is_safe_state(processes, allocation, max_matrix, available)
         print_bankers_output(processes, need, is_safe, safe_seq)
