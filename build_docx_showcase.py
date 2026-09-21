@@ -406,333 +406,86 @@ def style_table(table, col_widths, headers, data, header_bg="2B579A", alt_bg="F2
 
 
 def build_docx_report(docx_path: str):
-    """Builds the comprehensive, elegantly formatted Word Document."""
+    """Builds the Word document containing solely the execution screenshots and section headings."""
     doc = docx.Document()
 
-    # Page Margins (1 inch all around)
-    sections = doc.sections
-    for s in sections:
-        s.top_margin = Inches(0.8)
-        s.bottom_margin = Inches(0.8)
-        s.left_margin = Inches(0.8)
-        s.right_margin = Inches(0.8)
+    # Standard Page Margins (0.75 inch for maximum screenshot display area)
+    for s in doc.sections:
+        s.top_margin = Inches(0.75)
+        s.bottom_margin = Inches(0.75)
+        s.left_margin = Inches(0.75)
+        s.right_margin = Inches(0.75)
 
     # Document Header / Title
     title_p = doc.add_paragraph()
     title_p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    t_run = title_p.add_run("OPERATING SYSTEMS LABORATORY EXAM 2\n")
+    t_run = title_p.add_run("OPERATING SYSTEMS - LABORATORY EXAM 2\n")
     t_run.font.name = "Calibri"
-    t_run.font.size = Pt(22)
+    t_run.font.size = Pt(20)
     t_run.font.bold = True
     t_run.font.color.rgb = RGBColor(31, 78, 121)
 
-    sub_run = title_p.add_run("CPU Scheduling Algorithms & Banker's Algorithm Simulation\nSample Input and Output Showcase")
+    sub_run = title_p.add_run("Program Execution Screenshots (Sample Input & Output)")
     sub_run.font.name = "Calibri"
-    sub_run.font.size = Pt(14)
+    sub_run.font.size = Pt(13)
     sub_run.font.italic = True
     sub_run.font.color.rgb = RGBColor(89, 89, 89)
 
-    doc.add_paragraph().paragraph_format.space_after = Pt(10)
+    doc.add_paragraph().paragraph_format.space_after = Pt(12)
 
-    # Meta Info Table / Card
-    meta_table = doc.add_table(rows=3, cols=2)
-    meta_table.alignment = WD_TABLE_ALIGNMENT.CENTER
-    meta_data = [
-        ("Course / Activity:", "Operating Systems - Laboratory Exam 2"),
-        ("Programming Language:", "Python 3 (Standard Library)"),
-        ("Public GitHub Repository:", "https://github.com/90377Sednaaa/LabatoryExam2"),
+    # List of all screenshots with clean titles
+    items = [
+        (
+            "1. First-Come, First-Served (FCFS) [Non-Preemptive]",
+            "1_fcfs_execution.png"
+        ),
+        (
+            "2. Shortest Job First (SJF) [Non-Preemptive]",
+            "2_sjf_execution.png"
+        ),
+        (
+            "3. Shortest Remaining Time First (SRTF) [Preemptive SJF]",
+            "3_srtf_execution.png"
+        ),
+        (
+            "4. Round Robin (RR, Quantum = 2) [Preemptive]",
+            "4_round_robin_execution.png"
+        ),
+        (
+            "5. Banker's Algorithm (Pre-configured Reference Sample)",
+            "5_bankers_preconfigured.png"
+        ),
+        (
+            "6. Banker's Algorithm (Custom User Matrix Input)",
+            "6_bankers_custom.png"
+        ),
     ]
-    for i, (k, v) in enumerate(meta_data):
-        c1, c2 = meta_table.rows[i].cells
-        c1.text = k
-        c2.text = v
-        set_cell_background(c1, "EAEEF3")
-        set_cell_background(c2, "F9FAFC")
-        c1.paragraphs[0].runs[0].font.bold = True
-        c1.paragraphs[0].runs[0].font.size = Pt(10)
-        c2.paragraphs[0].runs[0].font.size = Pt(10)
-        c1.width = Inches(2.2)
-        c2.width = Inches(4.5)
 
-    doc.add_paragraph().paragraph_format.space_after = Pt(16)
+    for idx, (heading_text, img_filename) in enumerate(items):
+        # Section Heading
+        h = doc.add_heading(level=1)
+        h_run = h.add_run(heading_text)
+        h_run.font.name = "Calibri"
+        h_run.font.size = Pt(14)
+        h_run.font.bold = True
+        h_run.font.color.rgb = RGBColor(31, 78, 121)
+        h.paragraph_format.space_before = Pt(8)
+        h.paragraph_format.space_after = Pt(6)
 
-    # Overview Section
-    h1 = doc.add_heading(level=1)
-    h1_run = h1.add_run("1. Objective & Requirements Overview")
-    h1_run.font.color.rgb = RGBColor(31, 78, 121)
+        # Centered Screenshot
+        img_path = os.path.join(SCREENSHOTS_DIR, img_filename)
+        p_img = doc.add_paragraph()
+        p_img.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        p_img.paragraph_format.space_after = Pt(14)
+        doc.add_picture(img_path, width=Inches(6.6))
+        doc.paragraphs[-1].alignment = WD_ALIGN_PARAGRAPH.CENTER
 
-    p_intro = doc.add_paragraph(
-        "This laboratory document demonstrates the simulated execution of both Non-Preemptive and Preemptive "
-        "CPU Scheduling algorithms, as well as the deadlock avoidance mechanism using Dijkstra's Banker's Algorithm. "
-        "Each section presents the test input parameters, the resulting terminal execution screenshot (featuring the "
-        "Gantt Chart and per-process metrics), and an analytical breakdown of the results."
-    )
-    p_intro.paragraph_format.line_spacing = 1.15
-    p_intro.paragraph_format.space_after = Pt(14)
-
-    # -------------------------------------------------------------
-    # 2. FCFS Scheduling
-    # -------------------------------------------------------------
-    h2 = doc.add_heading(level=1)
-    h2_run = h2.add_run("2. Non-Preemptive: First-Come, First-Served (FCFS)")
-    h2_run.font.color.rgb = RGBColor(31, 78, 121)
-
-    doc.add_paragraph(
-        "First-Come, First-Served (FCFS) schedules processes strictly according to their arrival time. "
-        "Once a process acquires the CPU, it runs uninterrupted until completion."
-    )
-
-    doc.add_heading(level=2).add_run("Input Parameters:")
-    fcfs_input_table = doc.add_table(rows=4, cols=3)
-    style_table(
-        fcfs_input_table,
-        [2.0, 2.3, 2.3],
-        ["Process ID", "Arrival Time (AT)", "Burst Time (BT)"],
-        [
-            ["P1", "0", "4"],
-            ["P2", "1", "3"],
-            ["P3", "2", "1"],
-        ],
-        header_bg="2F5597"
-    )
-
-    doc.add_paragraph().paragraph_format.space_after = Pt(6)
-    doc.add_heading(level=2).add_run("Execution Screenshot:")
-    doc.add_picture(os.path.join(SCREENSHOTS_DIR, "1_fcfs_execution.png"), width=Inches(6.5))
-    doc.paragraphs[-1].alignment = WD_ALIGN_PARAGRAPH.CENTER
-
-    doc.add_paragraph().paragraph_format.space_after = Pt(6)
-    doc.add_heading(level=2).add_run("Results Analysis:")
-    doc.add_paragraph(
-        "• Process P1 arrives at t=0 and executes from [0, 4] (Completion = 4, TAT = 4, WT = 0).\n"
-        "• Process P2 arrives at t=1, waits until P1 finishes at t=4, and executes from [4, 7] (Completion = 7, TAT = 6, WT = 3).\n"
-        "• Process P3 arrives at t=2, waits until t=7, and executes from [7, 8] (Completion = 8, TAT = 6, WT = 5).\n"
-        "• Average Turnaround Time: (4 + 6 + 6) / 3 = 5.33\n"
-        "• Average Waiting Time: (0 + 3 + 5) / 3 = 2.67"
-    )
-
-    doc.add_paragraph().paragraph_format.space_after = Pt(14)
-
-    # -------------------------------------------------------------
-    # 3. SJF Non-Preemptive
-    # -------------------------------------------------------------
-    h3 = doc.add_heading(level=1)
-    h3_run = h3.add_run("3. Non-Preemptive: Shortest Job First (SJF)")
-    h3_run.font.color.rgb = RGBColor(31, 78, 121)
-
-    doc.add_paragraph(
-        "Shortest Job First (SJF) selects the available arrived process with the smallest CPU burst time. "
-        "Being non-preemptive, the selected process runs to completion before the next scheduling decision."
-    )
-
-    doc.add_heading(level=2).add_run("Input Parameters:")
-    sjf_input_table = doc.add_table(rows=5, cols=3)
-    style_table(
-        sjf_input_table,
-        [2.0, 2.3, 2.3],
-        ["Process ID", "Arrival Time (AT)", "Burst Time (BT)"],
-        [
-            ["P1", "0", "7"],
-            ["P2", "2", "4"],
-            ["P3", "4", "1"],
-            ["P4", "5", "4"],
-        ],
-        header_bg="2F5597"
-    )
-
-    doc.add_paragraph().paragraph_format.space_after = Pt(6)
-    doc.add_heading(level=2).add_run("Execution Screenshot:")
-    doc.add_picture(os.path.join(SCREENSHOTS_DIR, "2_sjf_execution.png"), width=Inches(6.5))
-    doc.paragraphs[-1].alignment = WD_ALIGN_PARAGRAPH.CENTER
-
-    doc.add_paragraph().paragraph_format.space_after = Pt(6)
-    doc.add_heading(level=2).add_run("Results Analysis:")
-    doc.add_paragraph(
-        "• At t=0, only P1 is available, so it executes from [0, 7].\n"
-        "• At t=7, P2 (BT=4), P3 (BT=1), and P4 (BT=4) have arrived. P3 has the shortest burst, running from [7, 8].\n"
-        "• At t=8, P2 and P4 both have BT=4; P2 arrived earlier (t=2 vs t=5), so P2 executes from [8, 12].\n"
-        "• P4 executes from [12, 16].\n"
-        "• Average Turnaround Time: (7 + 10 + 4 + 11) / 4 = 8.00\n"
-        "• Average Waiting Time: (0 + 6 + 3 + 7) / 4 = 4.00"
-    )
-
-    doc.add_paragraph().paragraph_format.space_after = Pt(14)
-
-    # -------------------------------------------------------------
-    # 4. SRTF Preemptive SJF
-    # -------------------------------------------------------------
-    h4 = doc.add_heading(level=1)
-    h4_run = h4.add_run("4. Preemptive: Shortest Remaining Time First (SRTF)")
-    h4_run.font.color.rgb = RGBColor(31, 78, 121)
-
-    doc.add_paragraph(
-        "Shortest Remaining Time First (SRTF) is the preemptive variant of SJF. If a newly arrived process "
-        "has a shorter remaining CPU burst time than the running process, the CPU is preempted."
-    )
-
-    doc.add_heading(level=2).add_run("Input Parameters:")
-    srtf_input_table = doc.add_table(rows=5, cols=3)
-    style_table(
-        srtf_input_table,
-        [2.0, 2.3, 2.3],
-        ["Process ID", "Arrival Time (AT)", "Burst Time (BT)"],
-        [
-            ["P1", "0", "8"],
-            ["P2", "1", "4"],
-            ["P3", "2", "9"],
-            ["P4", "3", "5"],
-        ],
-        header_bg="2F5597"
-    )
-
-    doc.add_paragraph().paragraph_format.space_after = Pt(6)
-    doc.add_heading(level=2).add_run("Execution Screenshot:")
-    doc.add_picture(os.path.join(SCREENSHOTS_DIR, "3_srtf_execution.png"), width=Inches(6.5))
-    doc.paragraphs[-1].alignment = WD_ALIGN_PARAGRAPH.CENTER
-
-    doc.add_paragraph().paragraph_format.space_after = Pt(6)
-    doc.add_heading(level=2).add_run("Results Analysis:")
-    doc.add_paragraph(
-        "• P1 runs from [0, 1]. At t=1, P2 arrives with BT=4 < P1's remaining 7; P1 is preempted.\n"
-        "• P2 runs to completion from [1, 5] (P3 at t=2 and P4 at t=3 have larger bursts).\n"
-        "• At t=5, P4 has shortest remaining time (5), running from [5, 10].\n"
-        "• At t=10, P1 resumes and completes its remaining 7 units from [10, 17].\n"
-        "• Finally, P3 executes from [17, 26].\n"
-        "• Average Turnaround Time: (17 + 4 + 24 + 7) / 4 = 13.00\n"
-        "• Average Waiting Time: (9 + 0 + 15 + 2) / 4 = 6.50"
-    )
-
-    doc.add_paragraph().paragraph_format.space_after = Pt(14)
-
-    # -------------------------------------------------------------
-    # 5. Round Robin
-    # -------------------------------------------------------------
-    h5 = doc.add_heading(level=1)
-    h5_run = h5.add_run("5. Preemptive: Round Robin (RR)")
-    h5_run.font.color.rgb = RGBColor(31, 78, 121)
-
-    doc.add_paragraph(
-        "Round Robin (RR) allocates a fixed time quantum to each process in cyclic order. "
-        "When a time slice expires, the process is moved to the back of the ready queue."
-    )
-
-    doc.add_heading(level=2).add_run("Input Parameters:")
-    rr_input_table = doc.add_table(rows=4, cols=3)
-    style_table(
-        rr_input_table,
-        [2.0, 2.3, 2.3],
-        ["Process ID", "Arrival Time (AT)", "Burst Time (BT)"],
-        [
-            ["P1", "0", "5"],
-            ["P2", "1", "3"],
-            ["P3", "2", "1"],
-        ],
-        header_bg="2F5597"
-    )
-    p_q = doc.add_paragraph()
-    q_run = p_q.add_run("Configured Time Quantum: 2")
-    q_run.font.bold = True
-
-    doc.add_paragraph().paragraph_format.space_after = Pt(6)
-    doc.add_heading(level=2).add_run("Execution Screenshot:")
-    doc.add_picture(os.path.join(SCREENSHOTS_DIR, "4_round_robin_execution.png"), width=Inches(6.5))
-    doc.paragraphs[-1].alignment = WD_ALIGN_PARAGRAPH.CENTER
-
-    doc.add_paragraph().paragraph_format.space_after = Pt(6)
-    doc.add_heading(level=2).add_run("Results Analysis:")
-    doc.add_paragraph(
-        "• [0-2]: P1 runs 2 units (rem: 3). P2 and P3 arrive during this interval. Queue: [P2, P3, P1].\n"
-        "• [2-4]: P2 runs 2 units (rem: 1). Queue: [P3, P1, P2].\n"
-        "• [4-5]: P3 runs 1 unit and finishes (Completion = 5). Queue: [P1, P2].\n"
-        "• [5-7]: P1 runs 2 units (rem: 1). Queue: [P2, P1].\n"
-        "• [7-8]: P2 runs 1 unit and finishes (Completion = 8). Queue: [P1].\n"
-        "• [8-9]: P1 runs 1 unit and finishes (Completion = 9).\n"
-        "• Average Turnaround Time: (9 + 7 + 3) / 3 = 6.33\n"
-        "• Average Waiting Time: (4 + 4 + 2) / 3 = 3.33"
-    )
-
-    doc.add_paragraph().paragraph_format.space_after = Pt(14)
-
-    # -------------------------------------------------------------
-    # 6. Banker's Algorithm Pre-configured
-    # -------------------------------------------------------------
-    h6 = doc.add_heading(level=1)
-    h6_run = h6.add_run("6. Banker's Algorithm: Pre-configured Reference Sample")
-    h6_run.font.color.rgb = RGBColor(31, 78, 121)
-
-    doc.add_paragraph(
-        "Demonstrates the deadlock avoidance safety algorithm using the laboratory reference problem. "
-        "No inputs are required to run this mode, producing the exact reference output."
-    )
-
-    doc.add_heading(level=2).add_run("Matrix Configuration (5 Processes, 3 Resource Types A, B, C):")
-    b_table = doc.add_table(rows=6, cols=4)
-    style_table(
-        b_table,
-        [1.5, 1.7, 1.7, 1.7],
-        ["Process", "Allocation [A, B, C]", "Maximum [A, B, C]", "Available [A, B, C]"],
-        [
-            ["P0", "[0, 1, 0]", "[7, 5, 3]", "[3, 3, 2]"],
-            ["P1", "[2, 0, 0]", "[3, 2, 2]", "-"],
-            ["P2", "[3, 0, 2]", "[9, 0, 2]", "-"],
-            ["P3", "[2, 1, 1]", "[2, 2, 2]", "-"],
-            ["P4", "[0, 0, 2]", "[4, 3, 3]", "-"],
-        ],
-        header_bg="2F5597"
-    )
-
-    doc.add_paragraph().paragraph_format.space_after = Pt(6)
-    doc.add_heading(level=2).add_run("Execution Screenshot (Verbatim Reference Output):")
-    doc.add_picture(os.path.join(SCREENSHOTS_DIR, "5_bankers_preconfigured.png"), width=Inches(6.5))
-    doc.paragraphs[-1].alignment = WD_ALIGN_PARAGRAPH.CENTER
-
-    doc.add_paragraph().paragraph_format.space_after = Pt(6)
-    doc.add_heading(level=2).add_run("Results Analysis:")
-    doc.add_paragraph(
-        "• Computed Need Matrix (Max - Allocation):\n"
-        "   - P0: [7, 4, 3]\n"
-        "   - P1: [1, 2, 2]\n"
-        "   - P2: [6, 0, 0]\n"
-        "   - P3: [0, 1, 1]\n"
-        "   - P4: [4, 3, 1]\n"
-        "• Circular Safety Algorithm Execution Trace:\n"
-        "   1. P1: Need [1, 2, 2] <= Work [3, 3, 2] -> Allocates, finishes, releases [2, 0, 0]. New Work = [5, 3, 2].\n"
-        "   2. P3: Need [0, 1, 1] <= Work [5, 3, 2] -> Allocates, finishes, releases [2, 1, 1]. New Work = [7, 4, 3].\n"
-        "   3. P4: Need [4, 3, 1] <= Work [7, 4, 3] -> Allocates, finishes, releases [0, 0, 2]. New Work = [7, 4, 5].\n"
-        "   4. P0: Need [7, 4, 3] <= Work [7, 4, 5] -> Allocates, finishes, releases [0, 1, 0]. New Work = [7, 5, 5].\n"
-        "   5. P2: Need [6, 0, 0] <= Work [7, 5, 5] -> Allocates, finishes, releases [3, 0, 2]. New Work = [10, 5, 7].\n"
-        "• State: System is in a Safe State.\n"
-        "• Safe Sequence: P1 -> P3 -> P4 -> P0 -> P2 (Matches sample output exactly)."
-    )
-
-    doc.add_paragraph().paragraph_format.space_after = Pt(14)
-
-    # -------------------------------------------------------------
-    # 7. Banker's Algorithm Custom Input
-    # -------------------------------------------------------------
-    h7 = doc.add_heading(level=1)
-    h7_run = h7.add_run("7. Banker's Algorithm: Custom User Input Mode")
-    h7_run.font.color.rgb = RGBColor(31, 78, 121)
-
-    doc.add_paragraph(
-        "Demonstrates the custom input capability where the user defines arbitrary matrices. "
-        "The parser flexibly accepts space-separated, comma-separated, or compact digit formats."
-    )
-
-    doc.add_heading(level=2).add_run("Execution Screenshot:")
-    doc.add_picture(os.path.join(SCREENSHOTS_DIR, "6_bankers_custom.png"), width=Inches(6.5))
-    doc.paragraphs[-1].alignment = WD_ALIGN_PARAGRAPH.CENTER
-
-    doc.add_paragraph().paragraph_format.space_after = Pt(6)
-    doc.add_heading(level=2).add_run("Results Analysis:")
-    doc.add_paragraph(
-        "• Process P1 is evaluated first and satisfies Need <= Work with available [3, 3, 2].\n"
-        "• After P1 completes and releases resources, P0 can be satisfied, followed by P2.\n"
-        "• Resulting Safe Sequence: P1 -> P0 -> P2."
-    )
+        # Optional page break between screenshots (except the last one)
+        if idx < len(items) - 1:
+            doc.add_page_break()
 
     doc.save(docx_path)
-    print(f"[+] Successfully generated DOCX document: {docx_path}")
+    print(f"[+] Successfully generated DOCX containing only screenshots: {docx_path}")
 
 
 if __name__ == "__main__":
