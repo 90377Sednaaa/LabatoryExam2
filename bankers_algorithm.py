@@ -226,14 +226,17 @@ def run_custom_bankers() -> None:
 
 
 if __name__ == "__main__":
-    print("==================================================")
-    print("         Banker's Algorithm Simulation            ")
-    print("==================================================")
-    print("1. Pre-configured Data (Instant output from example)")
-    print("2. Custom User Input")
-    choice = input("Select mode [1/2] (Default 1): ").strip()
-    
-    if choice == "2":
-        run_custom_bankers()
-    else:
-        run_preconfigured_bankers()
+    try:
+        print("==================================================")
+        print("         Banker's Algorithm Simulation            ")
+        print("==================================================")
+        print("1. Pre-configured Data (Instant output from example)")
+        print("2. Custom User Input")
+        choice = input("Select mode [1/2] (Default 1): ").strip()
+        
+        if choice == "2":
+            run_custom_bankers()
+        else:
+            run_preconfigured_bankers()
+    except (KeyboardInterrupt, EOFError):
+        print("\n\nOperation cancelled. Exiting...\n")

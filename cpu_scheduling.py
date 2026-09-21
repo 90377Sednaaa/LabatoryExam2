@@ -439,17 +439,20 @@ def run_interactive_scheduling(algorithm_code: str) -> None:
 
 
 if __name__ == "__main__":
-    print("==================================================")
-    print("         CPU Scheduling Simulator                 ")
-    print("==================================================")
-    print("1. First-Come, First-Served (FCFS) [Non-Preemptive]")
-    print("2. Shortest Job First (SJF) [Non-Preemptive]")
-    print("3. Shortest Remaining Time First (SRTF) [Preemptive SJF]")
-    print("4. Round Robin (RR) [Preemptive]")
-    print("0. Exit")
-    
-    choice = input("\nSelect algorithm [1-4, 0]: ").strip()
-    if choice in {"1", "2", "3", "4"}:
-        run_interactive_scheduling(choice)
-    else:
-        print("Exiting CPU Scheduling Simulator.")
+    try:
+        print("==================================================")
+        print("         CPU Scheduling Simulator                 ")
+        print("==================================================")
+        print("1. First-Come, First-Served (FCFS) [Non-Preemptive]")
+        print("2. Shortest Job First (SJF) [Non-Preemptive]")
+        print("3. Shortest Remaining Time First (SRTF) [Preemptive SJF]")
+        print("4. Round Robin (RR) [Preemptive]")
+        print("0. Exit")
+        
+        choice = input("\nSelect algorithm [1-4, 0]: ").strip()
+        if choice in {"1", "2", "3", "4"}:
+            run_interactive_scheduling(choice)
+        else:
+            print("Exiting CPU Scheduling Simulator.")
+    except (KeyboardInterrupt, EOFError):
+        print("\n\nOperation cancelled. Exiting...\n")
