@@ -1,0 +1,191 @@
+================================================================================
+          OPERATING SYSTEMS SIMULATION - SAMPLE INPUT & OUTPUT SHOWCASE
+                             Laboratory Exam 2
+================================================================================
+
+This document showcases sample console interactions, user inputs, and formatted
+outputs for all implemented CPU Scheduling algorithms and Banker's Algorithm.
+
+--------------------------------------------------------------------------------
+1. FIRST-COME, FIRST-SERVED (FCFS) [NON-PREEMPTIVE]
+--------------------------------------------------------------------------------
+[SAMPLE INPUT]:
+Number of processes: 3
+Process P1 -> Arrival Time: 0, Burst Time: 4
+Process P2 -> Arrival Time: 1, Burst Time: 3
+Process P3 -> Arrival Time: 2, Burst Time: 1
+
+[PROGRAM OUTPUT]:
+=================================================================
+  CPU Scheduling Results: First-Come, First-Served (FCFS) [Non-Preemptive]
+=================================================================
+
+Gantt Chart:
++-------+-------+-------+
+|   P1  |   P2  |   P3  |
++-------+-------+-------+
+0       4       7       8
+
+Process Execution Details:
+----------------------------------------------------------------------------------------
+Process   | Arrival Time | Burst Time | Completion Time | Turnaround Time | Waiting Time
+----------------------------------------------------------------------------------------
+P1        | 0            | 4          | 4               | 4               | 0           
+P2        | 1            | 3          | 7               | 6               | 3           
+P3        | 2            | 1          | 8               | 6               | 5           
+----------------------------------------------------------------------------------------
+
+Average Turnaround Time : 5.33
+Average Waiting Time    : 2.67
+=================================================================
+
+
+--------------------------------------------------------------------------------
+2. SHORTEST JOB FIRST (SJF) [NON-PREEMPTIVE]
+--------------------------------------------------------------------------------
+[SAMPLE INPUT]:
+Number of processes: 4
+Process P1 -> Arrival Time: 0, Burst Time: 7
+Process P2 -> Arrival Time: 2, Burst Time: 4
+Process P3 -> Arrival Time: 4, Burst Time: 1
+Process P4 -> Arrival Time: 5, Burst Time: 4
+
+[PROGRAM OUTPUT]:
+=================================================================
+  CPU Scheduling Results: Shortest Job First (SJF) [Non-Preemptive]
+=================================================================
+
+Gantt Chart:
++-------+-------+-------+-------+
+|   P1  |   P3  |   P2  |   P4  |
++-------+-------+-------+-------+
+0       7       8       12      16
+
+Process Execution Details:
+----------------------------------------------------------------------------------------
+Process   | Arrival Time | Burst Time | Completion Time | Turnaround Time | Waiting Time
+----------------------------------------------------------------------------------------
+P1        | 0            | 7          | 7               | 7               | 0           
+P2        | 2            | 4          | 12              | 10              | 6           
+P3        | 4            | 1          | 8               | 4               | 3           
+P4        | 5            | 4          | 16              | 11              | 7           
+----------------------------------------------------------------------------------------
+
+Average Turnaround Time : 8.00
+Average Waiting Time    : 4.00
+=================================================================
+
+
+--------------------------------------------------------------------------------
+3. SHORTEST REMAINING TIME FIRST (SRTF) [PREEMPTIVE SJF]
+--------------------------------------------------------------------------------
+[SAMPLE INPUT]:
+Number of processes: 4
+Process P1 -> Arrival Time: 0, Burst Time: 8
+Process P2 -> Arrival Time: 1, Burst Time: 4
+Process P3 -> Arrival Time: 2, Burst Time: 9
+Process P4 -> Arrival Time: 3, Burst Time: 5
+
+[PROGRAM OUTPUT]:
+=================================================================
+  CPU Scheduling Results: Shortest Remaining Time First (SRTF) [Preemptive SJF]
+=================================================================
+
+Gantt Chart:
++-------+-------+-------+-------+-------+
+|   P1  |   P2  |   P4  |   P1  |   P3  |
++-------+-------+-------+-------+-------+
+0       1       5       10      17      26
+
+Process Execution Details:
+----------------------------------------------------------------------------------------
+Process   | Arrival Time | Burst Time | Completion Time | Turnaround Time | Waiting Time
+----------------------------------------------------------------------------------------
+P1        | 0            | 8          | 17              | 17              | 9           
+P2        | 1            | 4          | 5               | 4               | 0           
+P3        | 2            | 9          | 26              | 24              | 15          
+P4        | 3            | 5          | 10              | 7               | 2           
+----------------------------------------------------------------------------------------
+
+Average Turnaround Time : 13.00
+Average Waiting Time    : 6.50
+=================================================================
+
+
+--------------------------------------------------------------------------------
+4. ROUND ROBIN (RR) [PREEMPTIVE]
+--------------------------------------------------------------------------------
+[SAMPLE INPUT]:
+Number of processes: 3
+Process P1 -> Arrival Time: 0, Burst Time: 5
+Process P2 -> Arrival Time: 1, Burst Time: 3
+Process P3 -> Arrival Time: 2, Burst Time: 1
+Time Quantum: 2
+
+[PROGRAM OUTPUT]:
+=================================================================
+  CPU Scheduling Results: Round Robin (RR) [Preemptive]
+=================================================================
+
+Gantt Chart:
++-------+-------+-------+-------+-------+-------+
+|   P1  |   P2  |   P3  |   P1  |   P2  |   P1  |
++-------+-------+-------+-------+-------+-------+
+0       2       4       5       7       8       9
+
+Process Execution Details:
+----------------------------------------------------------------------------------------
+Process   | Arrival Time | Burst Time | Completion Time | Turnaround Time | Waiting Time
+----------------------------------------------------------------------------------------
+P1        | 0            | 5          | 9               | 9               | 4           
+P2        | 1            | 3          | 8               | 7               | 4           
+P3        | 2            | 1          | 5               | 3               | 2           
+----------------------------------------------------------------------------------------
+
+Average Turnaround Time : 6.33
+Average Waiting Time    : 3.33
+=================================================================
+
+
+--------------------------------------------------------------------------------
+5. BANKER'S ALGORITHM - PRE-CONFIGURED SAMPLE
+--------------------------------------------------------------------------------
+[SAMPLE INPUT]:
+Select mode: 1 (Pre-configured Data / Default - no inputs needed)
+
+[PROGRAM OUTPUT]:
+--- Running Banker's Algorithm (Pre-configured Data) ---
+
+Need Matrix:
+P0: [7, 4, 3]
+P1: [1, 2, 2]
+P2: [6, 0, 0]
+P3: [0, 1, 1]
+P4: [4, 3, 1]
+
+System is in a Safe State.
+Safe Sequence: P1 -> P3 -> P4 -> P0 -> P2
+
+
+--------------------------------------------------------------------------------
+6. BANKER'S ALGORITHM - CUSTOM USER INPUT (SAFE STATE EXAMPLE)
+--------------------------------------------------------------------------------
+[SAMPLE INPUT]:
+Number of processes: 3
+Number of resource types: 3
+Allocation for P0: 0 1 0
+Allocation for P1: 2 0 0
+Allocation for P2: 3 0 2
+Maximum for P0: 7 5 3
+Maximum for P1: 3 2 2
+Maximum for P2: 9 0 2
+Available: 3 3 2
+
+[PROGRAM OUTPUT]:
+Need Matrix:
+P0: [7, 4, 3]
+P1: [1, 2, 2]
+P2: [6, 0, 0]
+
+System is in a Safe State.
+Safe Sequence: P1 -> P0 -> P2

@@ -101,7 +101,6 @@ python -m unittest test_simulation.py -v
 ## 📊 Sample Outputs
 
 ### Banker's Algorithm Sample Output
-*(Matches reference specification screenshot)*
 ```text
 Need Matrix:
 P0: [7, 4, 3]
@@ -146,10 +145,10 @@ Average Waiting Time    : 3.33
 
 ```text
 LabatoryExam2/
-├── main.py               # Interactive CLI launcher uniting all simulations
-├── cpu_scheduling.py     # Process model, FCFS, SJF, SRTF, RR & Gantt renderer
-├── bankers_algorithm.py  # Need matrix computation & Banker's safety algorithm
-├── test_simulation.py    # Unit tests for scheduling algorithms & Banker's logic
-├── README.md             # Project documentation and run guide
-└── docs/                 # Design specs and implementation plans
+├── main.py                  # Interactive CLI launcher uniting all simulations
+├── cpu_scheduling.py        # Process model, FCFS, SJF, SRTF, RR & Gantt renderer
+├── bankers_algorithm.py     # Need matrix computation & Banker's safety algorithm
+├── test_simulation.py       # Unit tests for scheduling algorithms & Banker's logic
+├── sample_input_output.txt  # Comprehensive sample inputs and execution outputs
+└── README.md                # Project documentation and run guide
 ```
